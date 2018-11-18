@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { Order, OrderItem } from './order.model';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import 'rxjs/add/operator/do'
 
 @Component({
   selector: 'mt-order',
@@ -18,6 +19,8 @@ export class OrderComponent implements OnInit {
   orderForm: FormGroup
 
   delivery: number = 8
+
+  orderId: string
 
   paymentOptions: RadioOption[] = [
     { label: 'Dinheiro', value: 'MON' },
@@ -36,21 +39,21 @@ export class OrderComponent implements OnInit {
       number: this.formBuilder.control('', [Validators.required, Validators.pattern(this.numberPattern)]),
       optionalAddress: this.formBuilder.control(''),
       paymentOption: this.formBuilder.control('', [Validators.required]),
-    }, {validator: OrderComponent.equalsTo})
+    }, { validator: OrderComponent.equalsTo })
   }
 
-  static equalsTo(group: AbstractControl): {[key: string]: boolean}{
+  static equalsTo(group: AbstractControl): { [key: string]: boolean } {
     const email = group.get('email')
     const emailConfirmation = group.get('emailConfirmation')
-    
-    if(!email || !emailConfirmation){
+
+    if (!email || !emailConfirmation) {
       return undefined
     }
 
-    if(email.value !== emailConfirmation.value){
-      return {emailsNotMatch: true}
+    if (email.value !== emailConfirmation.value) {
+      return { emailsNotMatch: true }
     }
-    
+
     return undefined
   }
 
@@ -74,14 +77,21 @@ export class OrderComponent implements OnInit {
     this.orderService.remove(item)
   }
 
+  isOrderCompleted(): boolean {
+    return this.orderId !== undefined
+  }
+
   checkOrder(order: Order) {
     order.orderItems = this.cartItems()
       .map((item: CartItem) => new OrderItem(item.quantity, item.menuItem.id))
-    this.orderService.checkOrder(order)
+    
+      this.orderService.checkOrder(order)
+      .do((orderId: string) => {
+        this.orderId = orderId
+      })
       .subscribe((orderId: string) => {
         this.router.navigate(['/order-summary'])
         this.orderService.clear()
       })
-    console.log(order)
   }
 }

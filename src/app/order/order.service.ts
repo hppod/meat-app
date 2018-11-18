@@ -1,11 +1,14 @@
-import { MEAT_API } from './../app.api';
 import { Injectable } from '@angular/core';
+
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+
 import { ShoppingCartService } from '../restaurant-detail/shopping-cart/shopping-cart.service';
 import { CartItem } from '../restaurant-detail/shopping-cart/cart-item.model';
-import { Order } from './order.model';
-import { Observable } from 'rxjs/Observable';
-import { HttpClient } from '@angular/common/http';
-import 'rxjs/add/operator/map';
+import { Order, OrderItem } from './order.model';
+import { MEAT_API } from '../app.api';
+import { LoginService } from '../security/login/login.service';
 
 @Injectable()
 export class OrderService {
